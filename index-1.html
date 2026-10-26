@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Budget">
+<meta name="theme-color" content="#92a8d1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Carat Budget</title>
+<style>
+:root{--bg1:#fdf0f0;--bg2:#e6edfa;--sf:rgba(255,255,255,.85);--tx:#26304a;--mu:#68739a;--ac:#5f7fb8;--bd:#dde3f2;--neg:#c93a62;--t1:#c2587c;--t2:#4f6fb5;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#131a30;--bg2:#222c52;--sf:rgba(34,44,79,.85);--tx:#f1f3fb;--mu:#a3add0;--ac:#b5c6ea;--bd:#35416d;--neg:#ff8fb0;--t1:#ffb3c8;--t2:#a9c0f0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg1:#131a30;--bg2:#222c52;--sf:rgba(34,44,79,.85);--tx:#f1f3fb;--mu:#a3add0;--ac:#b5c6ea;--bd:#35416d;--neg:#ff8fb0;--t1:#ffb3c8;--t2:#a9c0f0;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed;color:var(--tx);font:16px/1.45 ui-rounded,"SF Pro Rounded",system-ui,-apple-system,sans-serif}
+main{max-width:520px;margin:0 auto;padding:16px 16px 56px}
+h1{font-size:1.6rem;font-weight:800;margin:0;background:linear-gradient(90deg,var(--t1),var(--t2));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:1rem;margin:0 0 10px;color:var(--mu);font-weight:700}h3{font-size:.95rem;margin:14px 0 2px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+input,select,button{font:inherit;color:var(--tx);background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:9px 11px}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.sum{position:relative;overflow:hidden;background:linear-gradient(135deg,#f7cac9,#92a8d1);color:#26304a;border-radius:24px;padding:20px;margin-bottom:20px;box-shadow:0 12px 30px rgba(146,168,209,.45)}
+.sum::after{content:"◆";position:absolute;right:-16px;top:-34px;font-size:140px;opacity:.2;transform:rotate(12deg);pointer-events:none}
+.sum .big{font-size:2.5rem;font-weight:800;line-height:1.1}.sum .neg{color:#9b1c4a}
+.row2{display:flex;justify-content:space-between;gap:8px;margin-top:10px;font-size:.9rem;position:relative}
+.mood{margin-top:12px;font-weight:700;position:relative}
+.bar,.cb{height:10px;border-radius:6px;overflow:hidden}.bar{background:rgba(38,48,74,.25);margin-top:10px}.bar i{display:block;height:100%;background:#fff;border-radius:6px;box-shadow:0 0 12px #fff}
+section{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:16px}
+.add{display:grid;grid-template-columns:1fr 1fr;gap:8px}.add input,.add select{width:100%}
+button.p{background:linear-gradient(135deg,#f7cac9,#92a8d1);color:#1c2440;border:0;font-weight:800}
+.cat{margin-bottom:10px}.cat div:first-child{display:flex;justify-content:space-between;font-size:.92rem}
+.cb{background:var(--bd)}.cb i{display:block;height:100%;background:linear-gradient(90deg,#f7cac9,#92a8d1)}.cb i.over{background:var(--neg)}
+.ex{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.ex>div{flex:1;min-width:0}.ex small{display:block;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex select{max-width:120px;padding:6px}.ex button{padding:6px 10px}
+details{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:12px 14px;margin-bottom:12px}summary{cursor:pointer;font-weight:700}
+.f{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0}.f label{flex:1}.f input{width:130px;text-align:right}
+.note{color:var(--mu);font-size:.85rem}
+.nw input.nm{width:auto;flex:1;min-width:0;text-align:left}.nw input:not(.nm){width:88px}.f button{padding:6px 10px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#26304a;color:#fff;padding:10px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.on{opacity:1}
+.dm{position:fixed;pointer-events:none;font-size:16px;z-index:9;animation:pop .8s ease-out forwards}
+@keyframes pop{to{transform:translate(var(--x),var(--y)) rotate(180deg) scale(.4);opacity:0}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}.dm{display:none}}
+
+#rep{position:fixed;inset:0;z-index:20;overflow:auto;background:linear-gradient(160deg,var(--bg1),var(--bg2));padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px));color:var(--tx)}
+#rep[hidden]{display:none}#rep .in{max-width:520px;margin:0 auto}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.acts button{flex:1;min-width:110px;padding:11px}
+.wide{width:100%;margin-bottom:20px;padding:12px}
+.rt{font-size:1.5rem;color:var(--tx);margin:0 0 8px}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.kp div{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:10px;font-weight:700;font-size:.92rem}.kp small{display:block;color:var(--mu);font-weight:400}
+.stk{display:flex;height:18px;border-radius:9px;overflow:hidden;background:var(--bd)}.stk i{display:block;height:100%}
+.rw{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--bd);font-size:.92rem}
+@media print{html:root:root:root{--bg1:#fff;--bg2:#fff;--sf:#fff;--tx:#26304a;--mu:#68739a;--bd:#dde3f2}body{background:#fff}body>main{display:none}#rep{position:static;overflow:visible;padding:0;background:#fff}.noprint{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><h1>Carat Budget ◆</h1><input type="month" id="m" aria-label="Month"></div>
+<div class="sum" aria-live="polite">
+  <div>Saved this month ◆</div><div class="big" id="saved">RM 0.00</div>
+  <div class="row2"><span id="inc"></span><span id="exp"></span></div>
+  <div class="row2"><span id="rate"></span><span id="goal"></span></div>
+  <div class="mood" id="mood"></div>
+  <div class="bar"><i id="pb" style="width:0"></i></div>
+</div>
+<button class="p wide" id="rb">Month summary and export ◆</button>
+<section><h2>Add expense</h2>
+  <div class="add"><input id="a" inputmode="decimal" placeholder="Amount (RM)" aria-label="Amount"><input id="n" placeholder="Where? (optional)" aria-label="Where"><select id="c" aria-label="Category"></select><button class="p" id="go">Add expense</button></div>
+</section>
+<section><h2>Spending by category</h2><div id="cats"></div></section>
+<section><h2>Expenses this month</h2><div id="list"></div></section>
+<details><summary>Income and fixed bills</summary><div id="form"></div></details>
+<details><summary>Goal, limits and backup</summary><div id="set"></div></details>
+<div class="toast" id="toast" role="status"></div>
+</main>
+<div id="rep" hidden><div class="in"><div class="acts noprint"><button class="p" id="pdf">Save as PDF</button><button class="p" id="csv">Excel (CSV)</button><button id="rx">Close</button></div><div id="rc"></div><p class="note noprint">PDF: tap Save as PDF, pinch out on the preview, then tap Share and Save to Files. Excel (CSV) opens in Excel, Numbers or Google Sheets.</p></div></div>
+<script>
+const $=i=>document.getElementById(i);
+const DC=['Food and drinks','Transport','Groceries','Shopee/TikTok','Other'];let CATS=DC;
+const KW={'Transport':['grab','shell','petronas','petron','caltex','touch n go','tng','rapid','parking','mrt','lrt'],'Food and drinks':['mcd','kfc','starbucks','restoran','restaurant','cafe','coffee','kopi','pizza','zus','tealive','foodpanda','subway','mamak'],'Groceries':['tesco','aeon','speedmart','mydin','lotus','giant','grocer','econsave'],'Shopee/TikTok':['shopee','tiktok','lazada']};
+const DEF={inc:[['Salary',0],['Bonus',0],['Allowance',0],['Other income',0]],fix:[['Netflix',0],['Spotify',0],['MARA',0],['PTPTN',0],['Credit card instalment',0],['TNB electricity',0]]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>(n<0?'-':'')+'RM '+Math.abs(n).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const sum=a=>a.reduce((s,x)=>s+(+x[1]||0),0);
+const p2=n=>('0'+n).slice(-2),ym=d=>d.getFullYear()+'-'+p2(d.getMonth()+1);
+const E={'Food and drinks':'🍜','Transport':'🚗','Groceries':'🛒','Shopee/TikTok':'📦','Other':'✨'};
+function norm(){S.cats=S.cats||DC.slice();CATS=S.cats;S.lim=S.lim||[];while(S.lim.length<CATS.length)S.lim.push(0)}
+function selopts(){$('c').innerHTML='<option value="auto">Auto category</option>'+CATS.map(c=>'<option>'+esc(c)+'</option>').join('')}
+let S,cm;
+function load(){try{S=JSON.parse(localStorage.getItem('bud2'))}catch(e){}S=S||{start:0,goal:10500,lim:[500,300,200,100,0],months:{}};norm()}
+function save(){try{localStorage.setItem('bud2',JSON.stringify(S))}catch(e){}}
+function M(){if(!S.months[cm]){const p=Object.keys(S.months).filter(x=>x<cm).sort().pop(),b=p?S.months[p]:DEF;S.months[cm]={inc:JSON.parse(JSON.stringify(b.inc)),fix:JSON.parse(JSON.stringify(b.fix)),exp:[]}}return S.months[cm]}
+const spent=d=>d.exp.reduce((s,x)=>s+x.a,0);
+function burst(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;const b=$('go').getBoundingClientRect();for(let i=0;i<14;i++){const e=document.createElement('span'),a=Math.random()*6.28,r=60+Math.random()*80;e.className='dm';e.textContent='◆';e.style.cssText='left:'+(b.left+b.width/2)+'px;top:'+(b.top+b.height/2)+'px;--x:'+Math.cos(a)*r+'px;--y:'+Math.sin(a)*r+'px;color:'+(i%2?'#f7a3b5':'#7f9bd0');document.body.appendChild(e);setTimeout(()=>e.remove(),850)}}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200)}
+function guess(m){m=m.toLowerCase();for(const c in KW)if(KW[c].some(k=>m.includes(k)))return CATS.includes(c)?c:'Other';return 'Other'}
+function add(a,m,c){const d=M(),f=d.exp[0];if(f&&f.a===a&&f.m===m&&Date.now()-f.id<30000)return false;const n=new Date();d.exp.unshift({id:Date.now(),a:a,m:m,c:c||guess(m),t:ym(n)+'-'+p2(n.getDate())});save();return true}
+function upd(){
+  const d=M(),inc=sum(d.inc),fx=sum(d.fix),sp=spent(d),sa=inc-fx-sp,now=ym(new Date());
+  $('saved').textContent=fmt(sa);$('saved').className='big'+(sa<0?' neg':'');
+  $('inc').textContent='Income '+fmt(inc);$('exp').textContent='Spent '+fmt(fx+sp);
+  $('rate').textContent='Savings rate '+(inc>0?Math.round(sa/inc*100):0)+'%';
+  $('mood').textContent=inc<=0?'Add your income to start shining ◆':sa<0?'Over budget. Time to regroup ◆':sa/inc>=.2?'Shining bright ◆ saving over 20%':'Keep polishing ◆ aim for 20% saved';
+  let all=+S.start||0;for(const k in S.months)if(k<=now){const x=S.months[k];all+=sum(x.inc)-sum(x.fix)-spent(x)}
+  const g=+S.goal||1;$('goal').textContent='Carat fund '+Math.round(all).toLocaleString('en-MY')+' / '+g.toLocaleString('en-MY');
+  $('pb').style.width=Math.max(0,Math.min(100,all/g*100))+'%';
+  $('cats').innerHTML=CATS.map((c,i)=>{const s=d.exp.filter(x=>x.c===c).reduce((t,x)=>t+x.a,0),l=+S.lim[i]||0;
+    return '<div class="cat"><div><span>'+(E[c]||'💎')+' '+c+'</span><span>'+fmt(s)+(l?' of '+l:'')+'</span></div><div class="cb"><i class="'+(l&&s>l?'over':'')+'" style="width:'+(l?Math.min(100,s/l*100):(s?100:0))+'%"></i></div></div>'}).join('');
+  $('list').innerHTML=d.exp.length?d.exp.map(x=>'<div class="ex"><div><b>'+fmt(x.a)+'</b><small>'+(esc(x.m)||'No note')+' on '+x.t+'</small></div><select data-i="'+x.id+'" aria-label="Category">'+CATS.map(c=>'<option'+(c===x.c?' selected':'')+'>'+c+'</option>').join('')+'</select><button data-d="'+x.id+'" aria-label="Delete expense">✕</button></div>').join(''):'<p class="note">No expenses yet. Add one above, or let Apple Pay log it for you.</p>';
+}
+function forms(){
+  const d=M(),row=k=>'<h3>'+(k==='inc'?'Income':'Fixed bills')+'</h3>'+d[k].map((r,i)=>'<div class="f"><label for="'+k+i+'">'+esc(r[0])+'</label><input id="'+k+i+'" data-k="'+k+'" data-i="'+i+'" inputmode="decimal" value="'+(r[1]||'')+'" placeholder="0.00"><button data-rm="'+k+':'+i+'" aria-label="Remove '+esc(r[0])+'">✕</button></div>').join('')+'<div class="f nw"><input class="nm" id="ni_'+k+'" placeholder="'+(k==='inc'?'New income, e.g. Freelance':'New bill, e.g. Insurance')+'" aria-label="Name"><input id="na_'+k+'" inputmode="decimal" placeholder="0.00" aria-label="Amount"><button class="p" data-add="'+k+'">Add</button></div>';
+  $('form').innerHTML=row('inc')+row('fix')+'<p class="note">New items count for this month and carry over to each new month. For the credit card, enter only the fixed instalment, because purchases you log are counted when you spend them.</p>';
+  $('set').innerHTML='<div class="f"><label for="goal">Carat fund goal (emergency)</label><input id="goal" data-s="goal" inputmode="decimal" value="'+S.goal+'"></div><div class="f"><label for="start">Already saved before using this app</label><input id="start" data-s="start" inputmode="decimal" value="'+(S.start||'')+'" placeholder="0.00"></div><h3>Monthly limits</h3>'+CATS.slice(0,-1).map((c,i)=>'<div class="f"><label for="l'+i+'">'+esc(c)+'</label><input id="l'+i+'" data-l="'+i+'" inputmode="decimal" value="'+S.lim[i]+'"><button data-dc="'+i+'" aria-label="Remove '+esc(c)+'">✕</button></div>').join('')+'<div class="f nw"><input class="nm" id="nc" placeholder="New category, e.g. Health" aria-label="Category name"><input id="nl" inputmode="decimal" placeholder="Limit" aria-label="Monthly limit"><button class="p" id="addcat">Add</button></div><p class="note">Removing a category moves its expenses to Other. Set a limit of 0 for no limit.</p><h3>Backup</h3><div class="f"><button id="ex">Export backup</button><button id="im">Import backup</button><input type="file" id="fi" accept="application/json" hidden></div><p class="note">Data stays on this device. Export a backup now and then, since Safari can clear site data.</p>';
+}
+document.addEventListener('input',e=>{const t=e.target,n=parseFloat(String(t.value).replace(/,/g,''))||0;
+  if(t.dataset.k){M()[t.dataset.k][t.dataset.i][1]=n}else if(t.dataset.s){S[t.dataset.s]=n}else if(t.dataset.l){S.lim[t.dataset.l]=n}else return;save();upd()});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.i&&t.tagName==='SELECT'){const x=M().exp.find(v=>v.id==t.dataset.i);if(x){x.c=t.value;save();upd()}}});
+document.addEventListener('click',e=>{const t=e.target;
+  if(t.dataset&&t.dataset.d){const d=M();d.exp=d.exp.filter(v=>v.id!=t.dataset.d);save();upd()}
+  if(t.id==='ex'){const b=new Blob([JSON.stringify(S)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='budget-backup-'+ym(new Date())+'.json';a.click()}
+  if(t.id==='im')$('fi').click();
+  if(t.dataset.add){const k=t.dataset.add,nm=$('ni_'+k).value.trim(),a=parseFloat($('na_'+k).value.replace(/,/g,''))||0;if(!nm){toast('Give it a name first');return}M()[k].push([nm,a]);save();forms();upd();toast('Added ◆')}
+  if(t.dataset.rm){const q=t.dataset.rm.split(':');M()[q[0]].splice(+q[1],1);save();forms();upd()}
+  if(t.id==='addcat'){const nm=$('nc').value.trim(),l=parseFloat($('nl').value.replace(/,/g,''))||0;if(!nm){toast('Give it a name first');return}if(CATS.includes(nm)){toast('That category already exists');return}const i=CATS.length-1;CATS.splice(i,0,nm);S.lim.splice(i,0,l);save();forms();selopts();upd();toast('Category added ◆')}
+  if(t.dataset.dc){const i=+t.dataset.dc,nm=CATS[i];for(const k in S.months)S.months[k].exp.forEach(e=>{if(e.c===nm)e.c='Other'});CATS.splice(i,1);S.lim.splice(i,1);save();forms();selopts();upd()}
+});
+document.addEventListener('change',e=>{if(e.target.id==='fi'&&e.target.files[0]){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!j.months)throw 0;S=j;norm();save();forms();selopts();upd();toast('Backup imported')}catch(x){toast('That file is not a budget backup')}};r.readAsText(e.target.files[0])}});
+$('go').onclick=()=>{const a=parseFloat($('a').value.replace(/,/g,''));if(!(a>0)){toast('Enter an amount first');return}
+  add(a,$('n').value.trim(),$('c').value==='auto'?null:$('c').value);$('a').value='';$('n').value='';upd();burst();toast('Expense added ◆')};
+$('m').onchange=()=>{cm=$('m').value||cm;forms();upd()};
+load();cm=ym(new Date());
+selopts();
+const q=new URLSearchParams(location.search);
+if(q.has('amt')){const a=parseFloat(q.get('amt').replace(/[^0-9.]/g,''));if(a>0&&add(a,q.get('m')||'',null))setTimeout(()=>toast('Logged '+fmt(a)+' ◆'),300);history.replaceState(null,'',location.pathname)}
+$('m').value=cm;forms();upd();
+
+function stats(){const d=M(),inc=sum(d.inc),fx=sum(d.fix),sp=spent(d);return{d:d,inc:inc,fx:fx,sp:sp,sa:inc-fx-sp}}
+function report(){
+  const o=stats(),d=o.d,inc=o.inc,fx=o.fx,sp=o.sp,sa=o.sa,tot=Math.max(inc,fx+sp)||1,w=v=>Math.max(0,v)/tot*100;
+  const y=+cm.slice(0,4),mo=+cm.slice(5),n=new Date(y,mo,0).getDate(),day=Array(n).fill(0);
+  d.exp.forEach(e=>{const k=+e.t.slice(8,10);if(e.t.slice(0,7)===cm&&k>=1&&k<=n)day[k-1]+=e.a});
+  const pk=Math.max.apply(null,day.concat([0])),mx=Math.max(pk,1),bw=300/n;
+  const dc='<svg viewBox="0 0 300 100" role="img" aria-label="Spending by day" style="width:100%">'+day.map((v,i)=>'<rect x="'+(i*bw+1)+'" y="'+(88-v/mx*72)+'" width="'+Math.max(1,bw-2)+'" height="'+(v/mx*72)+'" rx="2" fill="#92a8d1"/>').join('')+'<text x="0" y="99" font-size="8" fill="currentColor">1</text><text x="300" y="99" font-size="8" text-anchor="end" fill="currentColor">'+n+'</text><text x="0" y="9" font-size="8" fill="currentColor">Highest day '+fmt(pk)+'</text></svg>';
+  const cats=CATS.map((c,i)=>{const t=d.exp.filter(x=>x.c===c).reduce((a,x)=>a+x.a,0),l=+S.lim[i]||0;return '<div class="cat"><div><span>'+(E[c]||'💎')+' '+esc(c)+'</span><span>'+fmt(t)+(l?' of '+l:'')+'</span></div><div class="cb"><i class="'+(l&&t>l?'over':'')+'" style="width:'+(l?Math.min(100,t/l*100):(t?100:0))+'%"></i></div></div>'}).join('');
+  const rows=a=>a.map(x=>'<div class="rw"><span>'+esc(x[0])+'</span><span>'+fmt(+x[1]||0)+'</span></div>').join('');
+  const ex=d.exp.slice().reverse().map(e=>'<div class="rw"><span>'+e.t.slice(8)+' '+esc(e.m||'No note')+' ('+esc(e.c)+')</span><span>'+fmt(e.a)+'</span></div>').join('')||'<p class="note">No expenses logged.</p>';
+  return '<h2 class="rt">'+new Date(y,mo-1,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'})+' ◆</h2>'
+   +'<div class="kp"><div><small>Income</small>'+fmt(inc)+'</div><div><small>Spent</small>'+fmt(fx+sp)+'</div><div><small>Saved</small>'+fmt(sa)+'</div></div>'
+   +'<p class="note">'+esc($('mood').textContent)+'. '+esc($('rate').textContent)+'. '+esc($('goal').textContent)+'.</p>'
+   +'<h3>Where your income went</h3><div class="stk"><i style="width:'+w(fx)+'%;background:#f7a3b5"></i><i style="width:'+w(sp)+'%;background:#7f9bd0"></i><i style="width:'+w(sa)+'%;background:#f2c66d"></i></div><p class="note">Pink: fixed bills '+fmt(fx)+'. Blue: spending '+fmt(sp)+'. Gold: saved '+fmt(sa)+'.</p>'
+   +'<h3>Spending by day</h3>'+dc+'<h3>Categories and limits</h3>'+cats+'<h3>Income</h3>'+rows(d.inc)+'<h3>Fixed bills</h3>'+rows(d.fix)+'<h3>Expenses</h3>'+ex;
+}
+function csv(){
+  const o=stats(),d=o.d,q=v=>typeof v==='number'?v:'"'+String(v).replace(/"/g,'""')+'"',r=[['Type','Date','Name','Category','Amount (RM)']];
+  d.inc.forEach(x=>r.push(['Income','',x[0],'',+x[1]||0]));d.fix.forEach(x=>r.push(['Fixed bill','',x[0],'',+x[1]||0]));
+  d.exp.slice().reverse().forEach(e=>r.push(['Expense',e.t,e.m,e.c,e.a]));
+  r.push([]);r.push(['Summary','','Total income','',o.inc]);r.push(['Summary','','Fixed bills','',o.fx]);r.push(['Summary','','Spending','',o.sp]);r.push(['Summary','','Saved','',o.sa]);
+  CATS.forEach((c,i)=>{r.push(['Category','',c,'Spent',d.exp.filter(x=>x.c===c).reduce((a,x)=>a+x.a,0)]);r.push(['Category','',c,'Limit',+S.lim[i]||0])});
+  const t='\ufeff'+r.map(x=>x.map(q).join(',')).join('\r\n'),a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='budget-'+cm+'.csv';a.click();
+}
+$('rb').onclick=()=>{$('rc').innerHTML=report();$('rep').hidden=false;$('rep').scrollTop=0};
+$('rx').onclick=()=>{$('rep').hidden=true};
+$('pdf').onclick=()=>window.print();
+$('csv').onclick=csv;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
